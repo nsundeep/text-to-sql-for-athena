@@ -15,13 +15,13 @@ logger.addHandler(logging.StreamHandler())
 
 class AthenaQueryExecute:
     def __init__(self):
-        self.glue_databucket_name='ATHENA-OUTPUT-BUCKET'
+        self.glue_databucket_name='kb-633338486544'
         self.athena_client=Clientmodules.createAthenaClient()
         self.s3_client=Clientmodules.createS3Client()
     
     def execute_query(self, query_string):
         # print("Inside execute query", query_string)
-        result_folder='athena_output'
+        result_folder='output'
         result_config = {"OutputLocation": f"s3://{self.glue_databucket_name}/{result_folder}"}
         query_execution_context = {
             "Catalog": "AwsDataCatalog",

@@ -1,12 +1,12 @@
 [
     {
-"database_name": "text2sql",
-"table_name": "title",
+"database_name": "imdb_stg",
+"table_name": "title_akas_tsv_gz",
  "table_description": "This dataset contains title details.",
  "relationships": {
             "primary_key": [
                 {
-                    "column_name": "titleId",
+                    "column_name": "titleid",
                     "constraint": "not null"
                 },
                 {
@@ -16,15 +16,15 @@
                 ],
                 "foreign_keys": [
                 {
-                    "database_name": "text2sql",
-                    "table_name": "title_ratings",
+                    "database_name": "imdb_stg",
+                    "table_name": "title_ratings_tsv_gz",
                     "join_on_column": "tconst"
                 }
                 ]
                },
                "columns": [
             {
-                "Name": "titleId",
+                "Name": "titleid",
                 "Type": "string",
                 "Comment": "This is the unique identifier of the title"
             },
@@ -59,15 +59,15 @@
                 "Comment": "Additional terms to describe this alternative title, not enumerated"
             },
             {
-                "Name": "isOriginalTitle",
+                "Name": "isoriginaltitle",
                 "Type": "string",
                 "Comment": "0: not original title; 1: original title"
             }
             ]
             },
             {
-"database_name": "text2sql",
-"table_name": "title_rating",
+"database_name": "imdb_stg",
+"table_name": "title_ratings_tsv_gz",
  "table_description": "This dataset contains ratings details",
  "relationships": {
             "primary_key": [
@@ -89,7 +89,7 @@
                 "Comment": "Weighted average of all the individual user ratings"
             },
             {
-                "Name": "numVotes",
+                "Name": "numvotes",
                 "Type": "string",
                 "Comment": "Number of votes the title has received"
             }

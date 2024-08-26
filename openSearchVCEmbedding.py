@@ -40,7 +40,7 @@ from boto_client import Clientmodules
 
 # Here Keeping the required parameter. can be used from config store.
 ##http_auth = ('llm**ector','@l****S1')
-opensearch_domain_endpoint = ''
+opensearch_domain_endpoint = 'https://pcnnwyicmvlypttno21f.us-east-1.aoss.amazonaws.com'
 aws_region = 'us-east-1'
 index_name = 'bedrock-knowledge-base-default-index'
 
