@@ -112,7 +112,7 @@ def evaluate(
             Defaults to None.
         description (Optional[str]): A free-form text description for the experiment.
         max_concurrency (Optional[int]): The maximum number of concurrent
-            evaluations to run. Defaults to None.
+            evaluations to run. Defaults to None (max number of workers).
         client (Optional[langsmith.Client]): The LangSmith client to use.
             Defaults to None.
         blocking (bool): Whether to block until the evaluation is complete.
@@ -371,16 +371,19 @@ class ExperimentResults:
         wait() -> None: Waits for the experiment data to be processed.
     """
 
-    def __init__(
-        self,
-        experiment_manager: _ExperimentManager,
-    ):
+    def __init__(self, experiment_manager: _ExperimentManager, blocking: bool = True):
         self._manager = experiment_manager
         self._results: List[ExperimentResultRow] = []
         self._queue: queue.Queue[ExperimentResultRow] = queue.Queue()
         self._processing_complete = threading.Event()
-        self._thread = threading.Thread(target=self._process_data)
-        self._thread.start()
+        if not blocking:
+            self._thread: Optional[threading.Thread] = threading.Thread(
+                target=self._process_data
+            )
+            self._thread.start()
+        else:
+            self._thread = None
+            self._process_data()
 
     @property
     def experiment_name(self) -> str:
@@ -426,7 +429,8 @@ class ExperimentResults:
         This method blocks the current thread until the evaluation runner has
         finished its execution.
         """
-        self._thread.join()
+        if self._thread:
+            self._thread.join()
 
 
 ## Public API for Comparison Experiments
@@ -878,10 +882,7 @@ def _evaluate(
             # Apply the experiment-level summary evaluators.
             manager = manager.with_summary_evaluators(summary_evaluators)
         # Start consuming the results.
-        results = ExperimentResults(manager)
-        if blocking:
-            # Wait for the evaluation to complete.
-            results.wait()
+        results = ExperimentResults(manager, blocking=blocking)
         return results
 
 
@@ -1294,6 +1295,7 @@ class _ExperimentManager(_ExperimentManagerMixin):
         self,
         evaluators: Sequence[RunEvaluator],
         current_results: ExperimentResultRow,
+        executor: cf.ThreadPoolExecutor,
     ) -> ExperimentResultRow:
         current_context = rh.get_tracing_context()
         metadata = {
@@ -1325,8 +1327,7 @@ class _ExperimentManager(_ExperimentManagerMixin):
                     eval_results["results"].extend(
                         # TODO: This is a hack
                         self.client._log_evaluation_feedback(
-                            evaluator_response,
-                            run=run,
+                            evaluator_response, run=run, _executor=executor
                         )
                     )
                 except Exception as e:
@@ -1351,14 +1352,19 @@ class _ExperimentManager(_ExperimentManagerMixin):
         Expects runs to be available in the manager.
         (e.g. from a previous prediction step)
         """
-        if max_concurrency == 0:
-            context = copy_context()
-            for current_results in self.get_results():
-                yield context.run(self._run_evaluators, evaluators, current_results)
-        else:
-            with ls_utils.ContextThreadPoolExecutor(
-                max_workers=max_concurrency
-            ) as executor:
+        with ls_utils.ContextThreadPoolExecutor(
+            max_workers=max_concurrency
+        ) as executor:
+            if max_concurrency == 0:
+                context = copy_context()
+                for current_results in self.get_results():
+                    yield context.run(
+                        self._run_evaluators,
+                        evaluators,
+                        current_results,
+                        executor=executor,
+                    )
+            else:
                 futures = set()
                 for current_results in self.get_results():
                     futures.add(
@@ -1366,6 +1372,7 @@ class _ExperimentManager(_ExperimentManagerMixin):
                             self._run_evaluators,
                             evaluators,
                             current_results,
+                            executor=executor,
                         )
                     )
                     try:

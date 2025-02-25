@@ -1156,6 +1156,22 @@ class Client:
             run_create["outputs"] = self._hide_run_outputs(run_create["outputs"])
         if not update and not run_create.get("start_time"):
             run_create["start_time"] = datetime.datetime.now(datetime.timezone.utc)
+
+        # Only retain LLM & Prompt manifests
+        if "serialized" in run_create:
+            if run_create.get("run_type") not in (
+                "llm",
+                "prompt",
+            ):
+                # Drop completely
+                run_create = {k: v for k, v in run_create.items() if k != "serialized"}
+            else:
+                # Drop graph
+                serialized = {
+                    k: v for k, v in run_create["serialized"].items() if k != "graph"
+                }
+                run_create = {**run_create, "serialized": serialized}
+
         return run_create
 
     @staticmethod
@@ -3938,8 +3954,17 @@ class Client:
         run: Optional[ls_schemas.Run] = None,
         source_info: Optional[Dict[str, Any]] = None,
         project_id: Optional[ID_TYPE] = None,
+        *,
+        _executor: Optional[cf.ThreadPoolExecutor] = None,
     ) -> List[ls_evaluator.EvaluationResult]:
         results = self._select_eval_results(evaluator_response)
+
+        def _submit_feedback(**kwargs):
+            if _executor:
+                _executor.submit(self.create_feedback, **kwargs)
+            else:
+                self.create_feedback(**kwargs)
+
         for res in results:
             source_info_ = source_info or {}
             if res.evaluator_info:
@@ -3949,9 +3974,10 @@ class Client:
                 run_id_ = res.target_run_id
             elif run is not None:
                 run_id_ = run.id
-            self.create_feedback(
-                run_id_,
-                res.key,
+
+            _submit_feedback(
+                run_id=run_id_,
+                key=res.key,
                 score=res.score,
                 value=res.value,
                 comment=res.comment,

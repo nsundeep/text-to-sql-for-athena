@@ -3,7 +3,7 @@ simplejson-3.19.3.dist-info/LICENSE.txt,sha256=_KoeMTqZMEMi4uCDbqTufYOc6aSAQ485I
 simplejson-3.19.3.dist-info/METADATA,sha256=CLwgaPjfXxGsIy4YnOr5Gvw4u4tJ-WUYKNMGNAyL0AM,3153
 simplejson-3.19.3.dist-info/RECORD,,
 simplejson-3.19.3.dist-info/REQUESTED,sha256=47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU,0
-simplejson-3.19.3.dist-info/WHEEL,sha256=GFhZtRx5RQ7RB8S-E6GWJ9NAN3fNeAjsYFA5fnUcPq0,109
+simplejson-3.19.3.dist-info/WHEEL,sha256=jS6NtB-FxcJIlAzGPqnFxcuJeXSupQMHB2Y1yHj3xFw,224
 simplejson-3.19.3.dist-info/top_level.txt,sha256=ohU816e0ltfT8aBFol4_XY1q9GBh9tEBbcPpNn49200,11
 simplejson/__init__.py,sha256=vgozbo7UnLXw2dtr53tMAA4PkYu01IX9ZGJ_Vexmmpo,23497
 simplejson/__pycache__/__init__.cpython-312.pyc,,
@@ -15,7 +15,7 @@ simplejson/__pycache__/ordered_dict.cpython-312.pyc,,
 simplejson/__pycache__/raw_json.cpython-312.pyc,,
 simplejson/__pycache__/scanner.cpython-312.pyc,,
 simplejson/__pycache__/tool.cpython-312.pyc,,
-simplejson/_speedups.cpython-312-darwin.so,sha256=ft62Thditon8MU8iYp7dmFFjcI77KVzCS9zbRhXNVfk,75872
+simplejson/_speedups.cpython-312-x86_64-linux-gnu.so,sha256=ZTEOTCSAIct5pLUYxNACRP2Ny3khkU1DtjYqmUQjxro,305936
 simplejson/compat.py,sha256=lroo216GraRWaBbohPWrlO_0YCOaHSFK1jjCCcV62lg,815
 simplejson/decoder.py,sha256=aua7gXXntwQNAwH2zJtd4CdAZC2RDSUiCIfFfRn8v9w,15133
 simplejson/encoder.py,sha256=O_HhBi1e8Z2ZiwnaIKSavIjU-TUjctPgbeDkeTXAp_s,29093
